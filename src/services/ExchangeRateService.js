@@ -34,5 +34,14 @@ export const fetchExchangeRates = async () => {
     }
   }
 
+  // 모든 API가 실패했을 경우, localStorage에서 백업 데이터 확인
+  const backup = localStorage.getItem('exchange-rate-backup');
+  if (backup) {
+    const backupData = JSON.parse(backup);
+    // TODO: timestamp 유효성 검사 (다음 단계에서 구현)
+    console.log('API 호출에 모두 실패하여 localStorage의 백업 데이터를 사용합니다.');
+    return backupData;
+  }
+
   return getDefaultRates();
 };

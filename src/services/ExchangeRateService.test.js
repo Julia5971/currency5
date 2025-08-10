@@ -1,6 +1,13 @@
 import { fetchExchangeRates } from './ExchangeRateService';
 
 describe('ExchangeRateService', () => {
+
+  // beforeEach: 각 테스트가 실행되기 직전에 항상 이 코드를 먼저 실행합니다.
+  beforeEach(() => {
+    localStorage.clear(); // localStorage를 깨끗하게 비웁니다.
+    jest.clearAllMocks(); // 모든 모킹된 함수들을 초기화합니다.
+  });
+
   // 테스트 ID 1.1.1: 기본 API 호출
   test('fetchExchangeRates 함수는 USD를 기반으로 데이터를 반환해야 한다', async () => {
     // Given
