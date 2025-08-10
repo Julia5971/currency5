@@ -21,6 +21,12 @@ export const fetchExchangeRates = async () => {
       if (response.ok) {
         console.log(`'${api.name}'에서 데이터를 성공적으로 가져왔습니다.`);
         const data = await response.json();
+        const backupData = {
+          ...data,
+          timestamp: Date.now(), // 저장 시점의 타임스탬프 추가
+        };
+        // localStorage에 데이터 백업
+        localStorage.setItem('exchange-rate-backup', JSON.stringify(backupData));
         return { ...data, source: api.name };
       }
     } catch (error) {
