@@ -66,4 +66,27 @@ describe('ExchangeRateService', () => {
       expect.stringContaining('"timestamp"')
     );
   });
+
+  // 테스트 ID 1.2.2: API 실패 시 데이터 복원
+  test('모든 API가 실패해도 localStorage에 유효한 데이터가 있으면 그 데이터를 반환해야 한다', async () => {
+    // Given: 모든 API 호출은 실패하도록 모킹
+    global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+
+    // And: localStorage에는 유효한 (1시간 전) 백업 데이터가 존재
+    const oneHourAgo = Date.now() - 60 * 60 * 1000;
+    const backupData = {
+      base: 'USD',
+      rates: { KRW: 1380.00 },
+      timestamp: oneHourAgo,
+      source: 'localStorage-backup'
+    };
+    localStorage.setItem('exchange-rate-backup', JSON.stringify(backupData));
+
+    // When: fetchExchangeRates 함수를 호출
+    const data = await fetchExchangeRates();
+
+    // Then: localStorage에서 읽어온 데이터를 반환해야 한다
+    expect(data.source).toBe('localStorage-backup');
+    expect(data.rates.KRW).toBe(1380.00);
+  });
 });
