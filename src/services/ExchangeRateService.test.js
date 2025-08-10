@@ -52,4 +52,17 @@ describe('ExchangeRateService', () => {
     expect(data.source).toBe('CurrencyAPI');
   });
 
+  // 테스트 ID 1.1.3: 모든 API 실패 시 기본값 반환
+  test('모든 API가 실패하면 기본 환율 데이터를 반환해야 한다', async () => {
+    // Given: fetch 함수가 항상 실패하도록 모킹
+    global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+
+    // When: fetchExchangeRates 함수를 호출
+    const data = await fetchExchangeRates();
+
+    // Then: 반환된 데이터의 source가 'Default'인지 확인
+    expect(data.source).toBe('Default');
+    expect(data.base).toBe('USD');
+  });
+
 });
