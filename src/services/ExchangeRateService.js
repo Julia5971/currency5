@@ -1,33 +1,32 @@
 // src/services/ExchangeRateService.js
 
 const API_ENDPOINTS = [
-  'https://open.er-api.com/v6/latest/USD', // 1순위: ExchangeRate-API
-  'https://api.currencyapi.com/v3/latest?apikey=YOUR_API_KEY&base_currency=USD' // 2순위: CurrencyAPI (나중에 실제 키로 변경 필요)
+  { name: 'ExchangeRate-API', url: 'https://open.er-api.com/v6/latest/USD' },
+  { name: 'CurrencyAPI', url: 'https://api.currencyapi.com/v3/latest?apikey=YOUR_API_KEY&base_currency=USD' },
 ];
 
+const getDefaultRates = () => {
+  console.log('모든 API 호출에 실패하여 기본 환율 정보를 반환합니다.');
+  return {
+    base: 'USD',
+    rates: { KRW: 1300.00 }, // 기본값
+    source: 'Default',
+  };
+};
+
 export const fetchExchangeRates = async () => {
-  // 1순위 API 시도
-  try {
-    const response = await fetch(API_ENDPOINTS[0]);
-    if (response.ok) {
-      const data = await response.json();
-      // 테스트를 위해 임시로 source 필드 추가
-      return { ...data, source: 'ExchangeRate-API' };
+  for (const api of API_ENDPOINTS) {
+    try {
+      const response = await fetch(api.url);
+      if (response.ok) {
+        console.log(`'${api.name}'에서 데이터를 성공적으로 가져왔습니다.`);
+        const data = await response.json();
+        return { ...data, source: api.name };
+      }
+    } catch (error) {
+      console.error(`'${api.name}' API 호출 실패:`, error.message);
     }
-  } catch (error) {
-    console.error('1순위 API 호출 실패:', error);
   }
 
-  // 2순위 API 시도
-  try {
-    const response = await fetch(API_ENDPOINTS[1]);
-    if (response.ok) {
-      return await response.json();
-    }
-  } catch (error) {
-    console.error('2순위 API 호출 실패:', error);
-  }
-
-  // 모든 API 실패 시 기본값 반환 (다음 테스트에서 구현 예정)
-  return { base: 'USD', rates: { KRW: 1350.25 } };
+  return getDefaultRates();
 };
