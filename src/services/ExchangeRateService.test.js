@@ -96,4 +96,26 @@ describe('ExchangeRateService', () => {
     expect(data.source).toBe('localStorage-backup');
     expect(data.rates.KRW).toBe(1380.00);
   });
+
+  // 테스트 ID 1.2.3: 만료된 데이터 미사용
+  test('localStorage의 백업 데이터가 24시간을 초과하면 사용하지 않아야 한다', async () => {
+    // Given: 모든 API 호출은 실패
+    global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+
+    // And: localStorage에는 만료된 (30시간 전) 데이터가 존재
+    const thirtyHoursAgo = Date.now() - 30 * 60 * 60 * 1000;
+    const expiredBackupData = {
+      base: 'USD',
+      rates: { KRW: 1399.00 },
+      timestamp: thirtyHoursAgo,
+      source: 'expired-backup'
+    };
+    localStorage.setItem('exchange-rate-backup', JSON.stringify(expiredBackupData));
+
+    // When: fetchExchangeRates 함수를 호출
+    const data = await fetchExchangeRates();
+
+    // Then: 백업 데이터를 사용하지 않고, 기본 데이터를 반환해야 한다
+    expect(data.source).toBe('Default');
+  });
 });
