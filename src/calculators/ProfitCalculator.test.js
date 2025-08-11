@@ -28,4 +28,22 @@ describe('ProfitCalculator', () => {
     // Then: 예상되는 환차손은 -5000원
     expect(loss).toBe(-5000);
   });
+
+  // 테스트 ID 2.1.3: 유효하지 않은 입력 처리
+  test('숫자가 아닌 값이 입력되면 NaN을 반환해야 한다', () => {
+    // Given: 유효하지 않은 입력값
+    const invalidInput = 'abc';
+    const validPrice = 1300;
+    const validAmount = 100;
+
+    // When: 유효하지 않은 값으로 함수를 각각 호출
+    const result1 = calculateProfitLoss(invalidInput, validPrice, validAmount);
+    const result2 = calculateProfitLoss(validPrice, invalidInput, validAmount);
+    const result3 = calculateProfitLoss(validPrice, validPrice, invalidInput);
+
+    // Then: 모든 결과는 NaN이어야 한다
+    expect(result1).toBeNaN();
+    expect(result2).toBeNaN();
+    expect(result3).toBeNaN();
+  });
 });
