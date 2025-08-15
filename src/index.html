@@ -402,7 +402,16 @@
         function initializeChart() {
             try {
                 developerMode.logIfDeveloperMode('차트 초기화 시작');
+                
+                // ChartService 클래스 확인
+                developerMode.logIfDeveloperMode('ChartService 클래스:', typeof ChartService);
+                developerMode.logIfDeveloperMode('ChartService 메서드들:', Object.getOwnPropertyNames(ChartService.prototype));
+                
                 chartService = new ChartService();
+                
+                // chartService 객체 확인
+                developerMode.logIfDeveloperMode('chartService 객체:', chartService);
+                developerMode.logIfDeveloperMode('chartService 메서드들:', Object.getOwnPropertyNames(Object.getPrototypeOf(chartService)));
                 
                 // 모든 캔버스 요소 수집
                 const canvasElements = {
@@ -415,9 +424,23 @@
                 
                 developerMode.logIfDeveloperMode('캔버스 요소 수집 완료:', Object.keys(canvasElements));
                 
-                // 모든 차트 초기화
-                const initResult = chartService.initializeAllCharts(canvasElements);
-                developerMode.logIfDeveloperMode('차트 초기화 결과:', initResult);
+                // 각 차트를 개별적으로 초기화
+                const currencies = ['USD', 'EUR', 'CHF', 'CNY', 'JPY'];
+                let successCount = 0;
+                
+                currencies.forEach(currency => {
+                    const canvasId = `${currency.toLowerCase()}-chart`;
+                    const canvas = canvasElements[canvasId];
+                    
+                    if (canvas && chartService.initializeChart(canvas, currency)) {
+                        successCount++;
+                        developerMode.logIfDeveloperMode(`${currency} 차트 초기화 성공`);
+                    } else {
+                        developerMode.logIfDeveloperMode(`${currency} 차트 초기화 실패`);
+                    }
+                });
+                
+                developerMode.logIfDeveloperMode(`총 ${successCount}개의 차트 초기화 완료`);
                 
                 // 샘플 데이터로 차트 테스트
                 const sampleData = chartService.loadSampleData();
