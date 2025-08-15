@@ -1,16 +1,18 @@
-export class DeveloperModeService {
+class DeveloperModeService {
   constructor() {
     this.settings = null;
     this.isInitialized = false;
     
+    console.log('🔧 새로운 DeveloperModeService 인스턴스 생성됨');
+    
     // 동기적으로 기본 설정 로드
     this.loadDefaultSettings();
     
-    // 개발자 모드 상태 즉시 출력
+    // 개발자 모드 상태 즉시 출력 (초기 기본값 기준)
     if (this.isDeveloperModeEnabled()) {
-      console.log('🔧 개발자 모드 ON');
+      console.log('🔧 개발자 모드 ON (초기)');
     } else {
-      console.log('🔧 개발자 모드 OFF');
+      console.log('🔧 개발자 모드 OFF (초기)');
     }
     
     // 비동기적으로 settings.json 로드
@@ -34,8 +36,12 @@ export class DeveloperModeService {
    */
   async loadSettingsFromFile() {
     try {
-      const response = await fetch('./settings.json');
+      console.log('🔧 loadSettingsFromFile() 함수 시작');
+      console.log('🔧 fetch 호출 시작');
+      const response = await fetch('./settings.json?t=' + Date.now()); // 캐시 무효화
+      console.log('🔧 fetch 응답 받음:', response.status, response.statusText);
       this.settings = await response.json();
+      console.log('🔧 JSON 파싱 완료');
       console.log('설정 파일 로드 완료:', this.settings);
       
       // 디버깅을 위한 상세 로그
@@ -54,11 +60,14 @@ export class DeveloperModeService {
         console.log('🔧 개발자 모드 OFF (설정 파일에서)');
       }
     } catch (error) {
-      console.log('설정 파일 로드 실패, 기본값 사용:', error);
+      console.log('🔧 설정 파일 로드 실패:', error);
+      console.log('🔧 에러 상세 정보:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
     }
   }
-
-
 
   /**
    * 개발자 모드가 켜져있는지 확인합니다.
@@ -89,14 +98,6 @@ export class DeveloperModeService {
   }
 }
 
-// 사용 예시:
-// const devMode = new DeveloperModeService();
-// 
-// // 개발자 모드에서만 로그 출력
-// devMode.logIfDeveloperMode('디버그 정보:', { user: 'test', action: 'login' });
-// 
-// // 조건부 로직 실행
-// if (devMode.isDeveloperModeEnabled()) {
-//   console.log('개발자 모드가 활성화되어 있습니다.');
-//   // 추가적인 디버그 정보 표시
-// }
+// 싱글톤 인스턴스를 생성하고 export
+const developerMode = new DeveloperModeService();
+export { developerMode };
