@@ -1,11 +1,10 @@
 {
-  "developerMode": {
-    "enabled": false,
-    "autoDetect": true,
-    "logLevel": "info"
-  },
-  "app": {
-    "name": "Currency Exchange Rate Service",
-    "version": "1.0.0"
-  }
+    "developerMode": {
+        "enabled": false,
+        "autoDetect": true
+    },
+    "defaultValues": {
+        "purchasePrice": 1300.50,
+        "amount": 100
+    }
 }

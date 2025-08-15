@@ -205,13 +205,16 @@
             <form id="calculator-form">
                 <div>
                     <label for="purchase-price">매입 환율 (KRW):</label>
-                    <input type="number" id="purchase-price" placeholder="예: 1300.50" step="0.01" required>
+                    <input type="number" id="purchase-price" placeholder="예: 1300.50" step="0.01">
                 </div>
                 <div>
                     <label for="amount">환전 금액 (USD):</label>
-                    <input type="number" id="amount" placeholder="예: 100" required>
+                    <input type="number" id="amount" placeholder="예: 100">
                 </div>
-                <button type="submit">계산하기</button>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit">계산하기</button>
+                    <button type="button" id="default-calc-btn">기본값으로 계산</button>
+                </div>
             </form>
             <p id="calculation-result">결과: -</p>
         </section>
@@ -254,6 +257,10 @@
         const calculatorForm = document.getElementById('calculator-form');
         const calculationResult = document.getElementById('calculation-result');
         const printButton = document.getElementById('print-button');
+        const defaultCalcBtn = document.getElementById('default-calc-btn');
+
+        // 전역 변수로 현재 환율 데이터 저장
+        let currentExchangeRates = null;
 
         // 실시간 환율 데이터 로드
         async function loadExchangeRates() {
@@ -261,6 +268,7 @@
                 developerMode.logIfDeveloperMode('환율 데이터 로딩 시작');
                 
                 const data = await fetchExchangeRates();
+                currentExchangeRates = data; // 전역 변수에 저장
                 
                 // 환율 정보 업데이트
                 const currencies = ['KRW', 'EUR', 'JPY', 'CNY'];
@@ -295,18 +303,36 @@
         function handleCalculation(event) {
             event.preventDefault();
             
-            const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
-            const amount = parseFloat(document.getElementById('amount').value);
+            let purchasePrice = parseFloat(document.getElementById('purchase-price').value);
+            let amount = parseFloat(document.getElementById('amount').value);
             
-            if (isNaN(purchasePrice) || isNaN(amount)) {
-                calculationResult.textContent = '올바른 숫자를 입력해주세요.';
-                return;
+            // 빈 값이면 기본값 사용
+            if (isNaN(purchasePrice)) {
+                purchasePrice = 1300.50;
+                document.getElementById('purchase-price').value = purchasePrice;
+                developerMode.logIfDeveloperMode('매입 환율이 비어있어 기본값 사용:', purchasePrice);
+            }
+            
+            if (isNaN(amount)) {
+                amount = 100;
+                document.getElementById('amount').value = amount;
+                developerMode.logIfDeveloperMode('환전 금액이 비어있어 기본값 사용:', amount);
             }
 
-            // 현재 환율 (실제로는 API에서 가져온 값 사용)
-            const currentPrice = 1350; // 임시 값
+            // 현재 환율 (실제 API 데이터 사용)
+            const currentPrice = currentExchangeRates?.rates?.KRW || 1350;
+            
+            developerMode.logIfDeveloperMode('환차손 계산 실행:', {
+                purchasePrice,
+                currentPrice,
+                amount,
+                purchasePriceInput: document.getElementById('purchase-price').value,
+                amountInput: document.getElementById('amount').value
+            });
             
             const profit = calculateProfitLoss(purchasePrice, currentPrice, amount);
+            
+            developerMode.logIfDeveloperMode('환차손 계산 결과:', profit);
             
             if (profit > 0) {
                 calculationResult.textContent = `환차익: +${profit.toLocaleString()}원`;
@@ -320,6 +346,50 @@
             }
         }
 
+        // 기본값으로 계산
+        function handleDefaultCalculation() {
+            const defaultPurchasePrice = 1300.50;
+            const defaultAmount = 100;
+            
+            developerMode.logIfDeveloperMode('기본값 계산 버튼 클릭됨');
+            
+            // 기본값을 입력 필드에 설정
+            document.getElementById('purchase-price').value = defaultPurchasePrice;
+            document.getElementById('amount').value = defaultAmount;
+            
+            developerMode.logIfDeveloperMode('입력 필드에 기본값 설정 완료:', {
+                purchasePrice: defaultPurchasePrice,
+                amount: defaultAmount
+            });
+            
+            // 현재 환율 (실제 API 데이터 사용)
+            const currentPrice = currentExchangeRates?.rates?.KRW || 1350;
+            
+            developerMode.logIfDeveloperMode('현재 환율 확인:', currentPrice);
+            
+            const profit = calculateProfitLoss(defaultPurchasePrice, currentPrice, defaultAmount);
+            
+            developerMode.logIfDeveloperMode('기본값으로 계산 실행:', { 
+                purchasePrice: defaultPurchasePrice, 
+                currentPrice, 
+                amount: defaultAmount, 
+                profit 
+            });
+            
+            if (profit > 0) {
+                calculationResult.textContent = `환차익: +${profit.toLocaleString()}원 (기본값 사용)`;
+                calculationResult.style.color = 'green';
+            } else if (profit < 0) {
+                calculationResult.textContent = `환차손: ${profit.toLocaleString()}원 (기본값 사용)`;
+                calculationResult.style.color = 'red';
+            } else {
+                calculationResult.textContent = '환차익/손: 0원 (기본값 사용)';
+                calculationResult.style.color = 'black';
+            }
+            
+            developerMode.logIfDeveloperMode('기본값 계산 완료, 결과 표시됨');
+        }
+
         // 인쇄 기능
         function handlePrint() {
             developerMode.logIfDeveloperMode('인쇄 기능 실행');
@@ -328,6 +398,7 @@
 
         // 이벤트 리스너 등록
         calculatorForm.addEventListener('submit', handleCalculation);
+        defaultCalcBtn.addEventListener('click', handleDefaultCalculation);
         printButton.addEventListener('click', handlePrint);
 
         // 페이지 로드 시 환율 데이터 로드
