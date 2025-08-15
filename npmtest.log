@@ -1,0 +1,262 @@
+
+> currency5@1.0.0 test
+> jest
+
+FAIL src/services/ChartIntegration.test.js
+  ● Console
+
+    console.error
+      과거 환율 데이터 가져오기 실패: ReferenceError: fetch is not defined
+          at HistoricalDataService.fetchHistoricalData (/home/julia/prj/currency5/src/services/HistoricalDataService.js:12:24)
+          at Object.fetchHistoricalData (/home/julia/prj/currency5/src/services/ChartIntegration.test.js:125:58)
+          at Promise.finally.completed (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1559:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1499:10)
+          at _callCircusTest (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1009:40)
+          at _runTest (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:949:3)
+          at _runTestsForDescribeBlock (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+          at _runTestsForDescribeBlock (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+          at run (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1920:21)
+          at jestAdapter (/home/julia/prj/currency5/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/home/julia/prj/currency5/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/home/julia/prj/currency5/node_modules/jest-runner/build/index.js:343:7)
+
+      19 |       return data.rates || this.generateMockHistoricalData(days);
+      20 |     } catch (error) {
+    > 21 |       console.error('과거 환율 데이터 가져오기 실패:', error);
+         |               ^
+      22 |       return null;
+      23 |     }
+      24 |   }
+
+      at HistoricalDataService.error [as fetchHistoricalData] (src/services/HistoricalDataService.js:21:15)
+      at Object.fetchHistoricalData (src/services/ChartIntegration.test.js:125:58)
+
+  ● Chart Integration Tests › 통합 차트 생성 › HistoricalDataService와 ChartService가 연동되어 차트를 생성해야 한다
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function createAllCharts]
+
+      64 |
+      65 |       // ChartService의 createAllCharts가 호출되었는지 확인
+    > 66 |       expect(historicalDataService.chartService.createAllCharts).toHaveBeenCalledWith(
+         |                                                                  ^
+      67 |         mockContainer,
+      68 |         expect.any(Object)
+      69 |       );
+
+      at Object.toHaveBeenCalledWith (src/services/ChartIntegration.test.js:66:66)
+
+  ● Chart Integration Tests › 통합 차트 생성 › 4개 통화의 차트가 모두 생성되어야 한다
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function prepareChartData]
+
+      78 |
+      79 |       // ChartService의 prepareChartData가 호출되었는지 확인
+    > 80 |       expect(historicalDataService.chartService.prepareChartData).toHaveBeenCalledWith(
+         |                                                                   ^
+      81 |         expect.arrayContaining([
+      82 |           expect.objectContaining({
+      83 |             date: '2024-01-01',
+
+      at Object.toHaveBeenCalledWith (src/services/ChartIntegration.test.js:80:67)
+
+  ● Chart Integration Tests › 전체 워크플로우 › 과거 데이터 가져오기부터 차트 생성까지 전체 과정이 작동해야 한다
+
+    TypeError: Cannot convert undefined or null to object
+        at Function.keys (<anonymous>)
+
+      125 |       const historicalData = await historicalDataService.fetchHistoricalData(7);
+      126 |       expect(historicalData).toBeDefined();
+    > 127 |       expect(Object.keys(historicalData)).toHaveLength(7);
+          |                     ^
+      128 |
+      129 |       // 2. 차트 생성
+      130 |       historicalDataService.createCharts(mockContainer, historicalData);
+
+      at Object.keys (src/services/ChartIntegration.test.js:127:21)
+
+PASS src/services/HistoricalDataService.test.js
+  ● Console
+
+    console.error
+      과거 환율 데이터 가져오기 실패: Error: API Error
+          at Object.<anonymous> (/home/julia/prj/currency5/src/services/HistoricalDataService.test.js:37:35)
+          at Promise.finally.completed (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1559:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1499:10)
+          at _callCircusTest (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1009:40)
+          at _runTest (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:949:3)
+          at _runTestsForDescribeBlock (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+          at _runTestsForDescribeBlock (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+          at run (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (/home/julia/prj/currency5/node_modules/jest-circus/build/jestAdapterInit.js:1920:21)
+          at jestAdapter (/home/julia/prj/currency5/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/home/julia/prj/currency5/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/home/julia/prj/currency5/node_modules/jest-runner/build/index.js:343:7)
+
+      19 |       return data.rates || this.generateMockHistoricalData(days);
+      20 |     } catch (error) {
+    > 21 |       console.error('과거 환율 데이터 가져오기 실패:', error);
+         |               ^
+      22 |       return null;
+      23 |     }
+      24 |   }
+
+      at HistoricalDataService.error [as fetchHistoricalData] (src/services/HistoricalDataService.js:21:15)
+      at Object.<anonymous> (src/services/HistoricalDataService.test.js:39:22)
+
+    console.error
+      과거 환율 데이터 가져오기 실패: Error: HTTP error! status: 500
+          at HistoricalDataService.fetchHistoricalData (/home/julia/prj/currency5/src/services/HistoricalDataService.js:15:15)
+          at Object.<anonymous> (/home/julia/prj/currency5/src/services/HistoricalDataService.test.js:50:22)
+
+      19 |       return data.rates || this.generateMockHistoricalData(days);
+      20 |     } catch (error) {
+    > 21 |       console.error('과거 환율 데이터 가져오기 실패:', error);
+         |               ^
+      22 |       return null;
+      23 |     }
+      24 |   }
+
+      at HistoricalDataService.error [as fetchHistoricalData] (src/services/HistoricalDataService.js:21:15)
+      at Object.<anonymous> (src/services/HistoricalDataService.test.js:50:22)
+
+PASS src/services/ChartService.test.js
+PASS src/services/ExchangeRateService.test.js
+  ● Console
+
+    console.log
+      'ExchangeRate-API'에서 데이터를 성공적으로 가져왔습니다.
+
+      at log (src/services/ExchangeRateService.js:22:17)
+
+    console.log
+      'CurrencyAPI'에서 데이터를 성공적으로 가져왔습니다.
+
+      at log (src/services/ExchangeRateService.js:22:17)
+
+    console.error
+      'ExchangeRate-API' API 호출 실패: Network error
+
+      31 |       }
+      32 |     } catch (error) {
+    > 33 |       console.error(`'${api.name}' API 호출 실패:`, error.message);
+         |               ^
+      34 |     }
+      35 |   }
+      36 |
+
+      at error (src/services/ExchangeRateService.js:33:15)
+      at Object.<anonymous> (src/services/ExchangeRateService.test.js:50:18)
+
+    console.error
+      'CurrencyAPI' API 호출 실패: Network error
+
+      31 |       }
+      32 |     } catch (error) {
+    > 33 |       console.error(`'${api.name}' API 호출 실패:`, error.message);
+         |               ^
+      34 |     }
+      35 |   }
+      36 |
+
+      at error (src/services/ExchangeRateService.js:33:15)
+      at Object.<anonymous> (src/services/ExchangeRateService.test.js:50:18)
+
+    console.log
+      모든 API 호출에 실패하여 기본 환율 정보를 반환합니다.
+
+      at log (src/services/ExchangeRateService.js:9:11)
+
+    console.log
+      'ExchangeRate-API'에서 데이터를 성공적으로 가져왔습니다.
+
+      at log (src/services/ExchangeRateService.js:22:17)
+
+    console.error
+      'ExchangeRate-API' API 호출 실패: Network error
+
+      31 |       }
+      32 |     } catch (error) {
+    > 33 |       console.error(`'${api.name}' API 호출 실패:`, error.message);
+         |               ^
+      34 |     }
+      35 |   }
+      36 |
+
+      at error (src/services/ExchangeRateService.js:33:15)
+      at Object.<anonymous> (src/services/ExchangeRateService.test.js:93:18)
+
+    console.error
+      'CurrencyAPI' API 호출 실패: Network error
+
+      31 |       }
+      32 |     } catch (error) {
+    > 33 |       console.error(`'${api.name}' API 호출 실패:`, error.message);
+         |               ^
+      34 |     }
+      35 |   }
+      36 |
+
+      at error (src/services/ExchangeRateService.js:33:15)
+      at Object.<anonymous> (src/services/ExchangeRateService.test.js:93:18)
+
+    console.log
+      API 호출에 모두 실패하여 localStorage의 유효한 백업 데이터를 사용합니다.
+
+      at log (src/services/ExchangeRateService.js:45:15)
+
+    console.error
+      'ExchangeRate-API' API 호출 실패: Network error
+
+      31 |       }
+      32 |     } catch (error) {
+    > 33 |       console.error(`'${api.name}' API 호출 실패:`, error.message);
+         |               ^
+      34 |     }
+      35 |   }
+      36 |
+
+      at error (src/services/ExchangeRateService.js:33:15)
+      at Object.<anonymous> (src/services/ExchangeRateService.test.js:116:18)
+
+    console.error
+      'CurrencyAPI' API 호출 실패: Network error
+
+      31 |       }
+      32 |     } catch (error) {
+    > 33 |       console.error(`'${api.name}' API 호출 실패:`, error.message);
+         |               ^
+      34 |     }
+      35 |   }
+      36 |
+
+      at error (src/services/ExchangeRateService.js:33:15)
+      at Object.<anonymous> (src/services/ExchangeRateService.test.js:116:18)
+
+    console.log
+      모든 API 호출에 실패하여 기본 환율 정보를 반환합니다.
+
+      at log (src/services/ExchangeRateService.js:9:11)
+
+PASS src/services/DataNormalizer.test.js
+PASS src/calculators/ProfitCalculator.test.js
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       3 failed, 28 passed, 31 total
+Snapshots:   0 total
+Time:        0.801 s, estimated 1 s
+Ran all test suites.
