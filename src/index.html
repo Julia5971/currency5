@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 환율 정보 서비스</title>
+</head>
+<body>
+    <header>
+        <h1>🌍 실시간 환율 정보 서비스</h1>
+    </header>
+
+    <main>
+        <section id="real-time-rates">
+            <h2>실시간 환율</h2>
+            <p>기준 통화: USD (미국 달러)</p>
+            <ul id="rate-list">
+                <li>KRW (대한민국 원): <span>-</span></li>
+                <li>EUR (유로): <span>-</span></li>
+                <li>JPY (일본 엔): <span>-</span></li>
+                <li>CNY (중국 위안): <span>-</span></li>
+            </ul>
+            <small id="last-updated">최종 업데이트: -</small>
+        </section>
+
+        <section id="profit-calculator">
+            <h2>환차손 계산기</h2>
+            <form id="calculator-form">
+                <div>
+                    <label for="purchase-price">매입 환율 (KRW):</label>
+                    <input type="number" id="purchase-price" placeholder="예: 1300.50" step="0.01" required>
+                </div>
+                <div>
+                    <label for="amount">환전 금액 (USD):</label>
+                    <input type="number" id="amount" placeholder="예: 100" required>
+                </div>
+                <button type="submit">계산하기</button>
+            </form>
+            <p id="calculation-result">결과: -</p>
+        </section>
+
+        <section id="historical-data">
+            <h2>과거 환율 데이터 (최근 30일)</h2>
+            <canvas id="rate-chart"></canvas>
+            <table id="rate-table">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>KRW</th>
+                        <th>EUR</th>
+                        <th>JPY</th>
+                        <th>CNY</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 데이터는 JavaScript로 채워집니다. -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>데이터 출처: ExchangeRate-API</p>
+        <button id="print-button">정보 인쇄하기</button>
+    </footer>
+</body>
+</html>
