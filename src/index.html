@@ -243,7 +243,7 @@
         <button id="print-button">정보 인쇄하기</button>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../node_modules/chart.js/dist/chart.umd.js"></script>
     <script type="module">
         import { fetchExchangeRates } from './services/ExchangeRateService.js';
         import { calculateProfitLoss } from './calculators/ProfitCalculator.js';
@@ -421,7 +421,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             developerMode.logIfDeveloperMode('페이지 로드 완료');
             loadExchangeRates();
-            initializeChart();
+            
+            // Chart.js 로딩 확인 후 차트 초기화
+            if (typeof Chart !== 'undefined') {
+                initializeChart();
+            } else {
+                developerMode.logIfDeveloperMode('Chart.js 로딩 대기 중...');
+                setTimeout(() => {
+                    if (typeof Chart !== 'undefined') {
+                        initializeChart();
+                    } else {
+                        console.error('Chart.js 로딩 실패');
+                    }
+                }, 1000);
+            }
         });
 
         // 5분마다 환율 데이터 새로고침

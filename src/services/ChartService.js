@@ -16,9 +16,42 @@ export class ChartService {
      * @param {HTMLCanvasElement} canvas - 차트를 그릴 캔버스 요소
      */
     initializeChart(canvas) {
+        if (!canvas) {
+            developerMode.logIfDeveloperMode('캔버스 요소가 없습니다');
+            return false;
+        }
+        
+        if (typeof Chart === 'undefined') {
+            developerMode.logIfDeveloperMode('Chart.js가 로딩되지 않았습니다');
+            return false;
+        }
+        
         developerMode.logIfDeveloperMode('차트 초기화 시작');
         
+        // 캔버스 크기 정보 출력
+        const canvasSize = {
+            width: canvas.width,
+            height: canvas.height,
+            offsetWidth: canvas.offsetWidth,
+            offsetHeight: canvas.offsetHeight,
+            clientWidth: canvas.clientWidth,
+            clientHeight: canvas.clientHeight,
+            scrollWidth: canvas.scrollWidth,
+            scrollHeight: canvas.scrollHeight,
+            style: {
+                width: canvas.style.width,
+                height: canvas.style.height
+            }
+        };
+        
+        developerMode.logIfDeveloperMode('캔버스 크기 정보:', canvasSize);
+        console.log('캔버스 크기 정보:', canvasSize);
+        
         const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            developerMode.logIfDeveloperMode('캔버스 컨텍스트를 가져올 수 없습니다');
+            return false;
+        }
         
         this.chart = new Chart(ctx, {
             type: 'line',
@@ -65,6 +98,7 @@ export class ChartService {
         });
         
         developerMode.logIfDeveloperMode('차트 초기화 완료');
+        return true;
     }
 
     /**
@@ -78,6 +112,23 @@ export class ChartService {
         }
 
         developerMode.logIfDeveloperMode('차트 데이터 업데이트 시작:', historicalData);
+        
+        // 차트 크기 정보 출력
+        const chartSize = {
+            canvas: {
+                width: this.chart.canvas.width,
+                height: this.chart.canvas.height,
+                offsetWidth: this.chart.canvas.offsetWidth,
+                offsetHeight: this.chart.canvas.offsetHeight
+            },
+            chart: {
+                width: this.chart.width,
+                height: this.chart.height
+            }
+        };
+        
+        developerMode.logIfDeveloperMode('차트 크기 정보:', chartSize);
+        console.log('차트 크기 정보:', chartSize);
 
         // 데이터 정렬 (날짜순)
         const sortedData = historicalData.sort((a, b) => new Date(a.date) - new Date(b.date));
