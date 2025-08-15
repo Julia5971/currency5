@@ -80,6 +80,12 @@
 
 
 
+
+
+**Node.js를 사용하는 경우:**
+```bash
+npx http-server src -p 8000
+```
 ## 실행 방법
 
 

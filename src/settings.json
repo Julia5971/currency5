@@ -1,0 +1,11 @@
+{
+  "developerMode": {
+    "enabled": false,
+    "autoDetect": true,
+    "logLevel": "info"
+  },
+  "app": {
+    "name": "Currency Exchange Rate Service",
+    "version": "1.0.0"
+  }
+}
