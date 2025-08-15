@@ -1,130 +1,79 @@
----
-
-
-
 # 실시간 환율 정보 및 분석 웹 서비스 (Currency Exchange Rate Service)
-
-
 
 이 프로젝트는 다양한 외부 API를 통해 실시간 환율 정보를 가져오고, 환차손익을 계산하는 기능을 제공하는 웹 서비스의 핵심 로직을 담고 있습니다. 모든 기능은 테스트 주도 개발(TDD) 방법론에 따라 견고하게 구현되었습니다.
 
-
-
 ## 주요 기능
-
-
 
 ### 1. 환율 정보 서비스 (`ExchangeRateService`)
 
-
-
 `src/services/ExchangeRateService.js`에 구현되어 있으며, 다음과 같은 특징을 가집니다.
 
+- **다중 API 연동 및 장애 복구 (Failover)**
+  - 1순위 API(`ExchangeRate-API`) 호출 실패 시, 자동으로 2순위 API(`CurrencyAPI`)를 호출하여 데이터의 안정성을 보장합니다.
 
+- **로컬 스토리지 캐싱 (Caching)**
+  - API 호출 성공 시, 결과를 `localStorage`에 24시간 동안 캐시합니다.
+  - 모든 API가 실패하더라도, 24시간 이내의 유효한 캐시 데이터가 있다면 이를 사용하여 오프라인 상태에서도 제한적인 서비스 이용이 가능합니다.
 
--   **다중 API 연동 및 장애 복구 (Failover)**
-
-    -   1순위 API(`ExchangeRate-API`) 호출 실패 시, 자동으로 2순위 API(`CurrencyAPI`)를 호출하여 데이터의 안정성을 보장합니다.
-
-
-
--   **로컬 스토리지 캐싱 (Caching)**
-
-    -   API 호출 성공 시, 결과를 `localStorage`에 24시간 동안 캐시합니다.
-
-    -   모든 API가 실패하더라도, 24시간 이내의 유효한 캐시 데이터가 있다면 이를 사용하여 오프라인 상태에서도 제한적인 서비스 이용이 가능합니다.
-
-
-
--   **데이터 정규화 (Normalization)**
-
-    -   기준 통화가 `EUR` 등 다른 통화인 API 응답을 받아도, 시스템의 기준 통화인 `USD`로 모든 환율을 자동 변환하여 일관된 형식의 데이터를 제공합니다.
-
-
+- **데이터 정규화 (Normalization)**
+  - 기준 통화가 `EUR` 등 다른 통화인 API 응답을 받아도, 시스템의 기준 통화인 `USD`로 모든 환율을 자동 변환하여 일관된 형식의 데이터를 제공합니다.
 
 ### 2. 환차손익 계산기 (`ProfitCalculator`)
 
-
-
 `src/calculators/ProfitCalculator.js`에 구현된 순수 함수입니다.
 
+- **기능**: `calculateProfitLoss(매입가, 현재가, 금액)`
+- **설명**: 매입 시점의 환율, 현재 환율, 그리고 보유 외화 금액을 입력받아 환차익 또는 환차손을 계산하여 반환합니다.
+- **예외 처리**: 유효하지 않은 입력값(숫자가 아닌 값)에 대해서는 `NaN`을 반환하여 안정성을 확보했습니다.
 
+### 3. 개발자 모드 서비스 (`DeveloperModeService`)
 
--   **기능**: `calculateProfitLoss(매입가, 현재가, 금액)`
+`src/services/DeveloperModeService.js`에 구현되어 있으며,  개발모드에 따라 로그를 출력하는 기능을 제공합니다.
 
--   **설명**: 매입 시점의 환율, 현재 환율, 그리고 보유 외화 금액을 입력받아 환차익 또는 환차손을 계산하여 반환합니다.
+- **기능**: `logIfDeveloperMode(...args)`
+- **설명**: 개발자 모드가 활성화된 경우에만 console.log를 출력합니다.
+- **설정**: `src/settings.json`에서 개발자 모드 설정을 관리할 수 있습니다.
 
--   **예외 처리**: 유효하지 않은 입력값(숫자가 아닌 값)에 대해서는 `NaN`을 반환하여 안정성을 확보했습니다.
+### 4. 차트 서비스 (`ChartService`)
 
+`src/services/ChartService.js`에 구현되어 있으며, 다중 통화 환율 차트를 제공합니다.
 
+- **기능**: `createMultiCurrencyChart()`, `getCurrencyColor()`
+- **설명**: KRW, CNY, USD, JPY, EUR을 하나의 화면에 30일간 환율 변화를 표시합니다.
+- **특징**: 각 통화별 고유 색상, 반응형 차트, 호버 효과 지원
 
 ## 테스트
 
-
-
 본 프로젝트는 `Jest`를 사용하여 테스트 주도 개발(TDD)로 진행되었습니다. 모든 기능 명세는 테스트 코드로 관리되며, `npm test` 명령어로 언제든지 모든 기능의 정상 동작 여부를 검증할 수 있습니다.
 
+- **테스트 커버리지**: `ExchangeRateService`, `DataNormalizer`, `ProfitCalculator`, `DeveloperModeService`, `ChartService`의 모든 핵심 로직 및 예외 케이스 포함.
+- **실행 방법**:
+  ```bash
+  npm install
+  npm test
+  ```
 
-
--   **테스트 커버리지**: `ExchangeRateService`, `DataNormalizer`, `ProfitCalculator`의 모든 핵심 로직 및 예외 케이스 포함.
-
--   **실행 방법**:
-
-    ```bash
-
-    npm install
-
-    npm test
-
-    ```
-
-
-
-
-
-**Node.js를 사용하는 경우:**
-```bash
-npx http-server src -p 8000
-```
 ## 실행 방법
-
-
 
 ### 1. 의존성 설치
 
-
-
 프로젝트를 실행하기 전에 필요한 패키지들을 설치합니다.
-
-
 
 ```bash
 npm install
 ```
 
-
-
 ### 2. 테스트 실행
 
-
-
 모든 기능이 정상적으로 작동하는지 확인합니다.
-
-
 
 ```bash
 npm test
 ```
 
-
-
 ### 3. 웹 서비스 실행
 
-
-
 이 프로젝트는 순수 HTML/JavaScript로 구현되어 있어 별도의 서버 설정 없이 바로 실행할 수 있습니다.
-
-
 
 #### 방법 1: 직접 브라우저에서 열기
 1. `src/index.html` 파일을 웹 브라우저에서 직접 열기
@@ -153,24 +102,37 @@ npx http-server src -p 8000
 3. "계산하기" 버튼을 클릭하여 환차익/환차손 확인
 
 #### 과거 데이터 확인
-- 최근 30일간의 환율 변화를 차트와 테이블로 확인 가능
+- 최근 30일간의 환율 변화를 다중 통화 차트로 확인 가능
+- KRW, CNY, USD, JPY, EUR을 하나의 화면에 각각 다른 색상으로 표시
 - 인쇄 기능으로 데이터 저장 가능
 
-
+#### 개발자 모드 테스트
+- `src/developer-test.html`에서 개발자 모드 기능을 테스트할 수 있습니다
+- `src/settings.json`에서 개발자 모드 설정을 변경할 수 있습니다
 
 ## 개발 원칙
 
+이 프로젝트는 다음과 같은 핵심 원칙에 따라 개발되었습니다.
 
+1. **단계별 진행 (Step-by-Step)**
+2. **단계별 테스트 (Test per Step)**
+3. **자동화된 커밋 및 푸시 (Automated Commit & Push)**
+4. **명확한 텍스트 중심의 콘텐츠 작성**
 
-이 프로젝트는 `rules.md`에 정의된 다음과 같은 핵심 원칙에 따라 개발되었습니다.
+## 기술 스택
 
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **데이터 소스**: ExchangeRate-API (1순위), CurrencyAPI (2순위), Fixer.io (3순위)
+- **차트 라이브러리**: Chart.js
+- **테스트 프레임워크**: Jest
+- **데이터 저장**: 브라우저 localStorage
 
+## 지원 통화
 
-1.  **단계별 진행 (Step-by-Step)**
+- **USD** (미국 달러) - 기준 통화
+- **KRW** (대한민국 원)
+- **EUR** (유로)
+- **JPY** (일본 엔)
+- **CNY** (중국 위안)
 
-2.  **단계별 테스트 (Test per Step)**
-
-3.  **자동화된 커밋 및 푸시 (Automated Commit & Push)**
-
-4.  **명확한 텍스트 중심의 콘텐츠 작성**
 
