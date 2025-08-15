@@ -1,38 +1,15 @@
 export class DeveloperModeService {
-  constructor(settingsService = null) {
-    this.settingsService = settingsService;
+  constructor() {
+    // 간단한 개발자 모드 서비스
   }
 
   /**
    * 개발자 모드가 켜져있는지 확인합니다.
-   * 설정 파일의 enabled 값과 자동 감지를 모두 고려합니다.
+   * 브라우저 개발자 도구가 열려있는지 감지합니다.
    * @returns {boolean} 개발자 모드 활성화 여부
    */
-  async isDeveloperModeEnabled() {
-    // 설정 파일에서 개발자 모드가 명시적으로 활성화되어 있으면 true
-    if (this.settingsService) {
-      const isEnabledInSettings = this.settingsService.isDeveloperModeEnabled();
-      if (isEnabledInSettings) {
-        return true;
-      }
-
-      // 자동 감지가 비활성화되어 있으면 설정값만 사용
-      const isAutoDetectEnabled = this.settingsService.isAutoDetectEnabled();
-      if (!isAutoDetectEnabled) {
-        return false;
-      }
-    }
-
-    // 자동 감지 로직
-    return this._detectDeveloperMode();
-  }
-
-  /**
-   * 개발자 모드를 자동으로 감지합니다.
-   * @returns {boolean} 개발자 모드 감지 여부
-   */
-  _detectDeveloperMode() {
-    // Chrome DevTools 감지 (더 정확한 방법)
+  isDeveloperModeEnabled() {
+    // Chrome DevTools 감지
     const heightDifference = window.outerHeight - window.innerHeight;
     const widthDifference = window.outerWidth - window.innerWidth;
     
@@ -43,11 +20,6 @@ export class DeveloperModeService {
 
     // 추가적인 DevTools 감지 방법들
     try {
-      // DevTools가 열려있으면 console.log의 toString이 변경됨
-      if (console.log.toString().indexOf('native code') === -1) {
-        return true;
-      }
-      
       // DevTools 감지를 위한 트릭
       const threshold = 160;
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
@@ -69,9 +41,8 @@ export class DeveloperModeService {
    * 개발자 모드가 켜져있을 때만 console.log를 출력합니다.
    * @param {...any} args - 출력할 인자들
    */
-  async logIfDeveloperMode(...args) {
-    const isEnabled = await this.isDeveloperModeEnabled();
-    if (isEnabled) {
+  logIfDeveloperMode(...args) {
+    if (this.isDeveloperModeEnabled()) {
       console.log(...args);
     }
   }
