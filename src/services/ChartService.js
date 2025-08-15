@@ -15,18 +15,18 @@ export class ChartService {
      * 차트 초기화
      * @param {HTMLCanvasElement} canvas - 차트를 그릴 캔버스 요소
      */
-    initializeChart(canvas) {
-        if (!canvas) {
-            developerMode.logIfDeveloperMode('캔버스 요소가 없습니다');
-            return false;
-        }
-        
-        if (typeof Chart === 'undefined') {
-            developerMode.logIfDeveloperMode('Chart.js가 로딩되지 않았습니다');
-            return false;
-        }
-        
-        developerMode.logIfDeveloperMode('차트 초기화 시작');
+                    async initializeChart(canvas) {
+                    if (!canvas) {
+                        await developerMode.logIfDeveloperMode('캔버스 요소가 없습니다');
+                        return false;
+                    }
+                    
+                    if (typeof Chart === 'undefined') {
+                        await developerMode.logIfDeveloperMode('Chart.js가 로딩되지 않았습니다');
+                        return false;
+                    }
+                    
+                    await developerMode.logIfDeveloperMode('차트 초기화 시작');
         
         // 캔버스 크기 정보 출력
         const canvasSize = {
@@ -44,14 +44,14 @@ export class ChartService {
             }
         };
         
-        developerMode.logIfDeveloperMode('캔버스 크기 정보:', canvasSize);
-        console.log('캔버스 크기 정보:', canvasSize);
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            developerMode.logIfDeveloperMode('캔버스 컨텍스트를 가져올 수 없습니다');
-            return false;
-        }
+                            await developerMode.logIfDeveloperMode('캔버스 크기 정보:', canvasSize);
+                    console.log('캔버스 크기 정보:', canvasSize);
+                    
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        await developerMode.logIfDeveloperMode('캔버스 컨텍스트를 가져올 수 없습니다');
+                        return false;
+                    }
         
         this.chart = new Chart(ctx, {
             type: 'line',
@@ -97,21 +97,21 @@ export class ChartService {
             }
         });
         
-        developerMode.logIfDeveloperMode('차트 초기화 완료');
-        return true;
+                            await developerMode.logIfDeveloperMode('차트 초기화 완료');
+                    return true;
     }
 
     /**
      * 환율 데이터로 차트 업데이트
      * @param {Array} historicalData - 과거 환율 데이터 배열
      */
-    updateChart(historicalData) {
-        if (!this.chart) {
-            developerMode.logIfDeveloperMode('차트가 초기화되지 않았습니다');
-            return;
-        }
+                    async updateChart(historicalData) {
+                    if (!this.chart) {
+                        await developerMode.logIfDeveloperMode('차트가 초기화되지 않았습니다');
+                        return;
+                    }
 
-        developerMode.logIfDeveloperMode('차트 데이터 업데이트 시작:', historicalData);
+                    await developerMode.logIfDeveloperMode('차트 데이터 업데이트 시작:', historicalData);
         
         // 차트 크기 정보 출력
         const chartSize = {
@@ -127,8 +127,8 @@ export class ChartService {
             }
         };
         
-        developerMode.logIfDeveloperMode('차트 크기 정보:', chartSize);
-        console.log('차트 크기 정보:', chartSize);
+                            await developerMode.logIfDeveloperMode('차트 크기 정보:', chartSize);
+                    console.log('차트 크기 정보:', chartSize);
 
         // 데이터 정렬 (날짜순)
         const sortedData = historicalData.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -179,29 +179,29 @@ export class ChartService {
         this.chart.data.datasets = datasets;
         this.chart.update();
 
-        developerMode.logIfDeveloperMode('차트 업데이트 완료', {
-            labelsCount: labels.length,
-            datasetsCount: datasets.length,
-            currencies: currencies
-        });
+                            await developerMode.logIfDeveloperMode('차트 업데이트 완료', {
+                        labelsCount: labels.length,
+                        datasetsCount: datasets.length,
+                        currencies: currencies
+                    });
     }
 
     /**
      * 차트 파괴
      */
-    destroyChart() {
-        if (this.chart) {
-            this.chart.destroy();
-            this.chart = null;
-            developerMode.logIfDeveloperMode('차트 파괴 완료');
-        }
-    }
+                    async destroyChart() {
+                    if (this.chart) {
+                        this.chart.destroy();
+                        this.chart = null;
+                        await developerMode.logIfDeveloperMode('차트 파괴 완료');
+                    }
+                }
 
     /**
      * 샘플 데이터로 차트 테스트
      */
-    loadSampleData() {
-        developerMode.logIfDeveloperMode('샘플 데이터 로드 시작');
+                    async loadSampleData() {
+                    await developerMode.logIfDeveloperMode('샘플 데이터 로드 시작');
         
         const sampleData = [];
         const today = new Date();
@@ -228,9 +228,9 @@ export class ChartService {
             });
         }
         
-        this.updateChart(sampleData);
-        developerMode.logIfDeveloperMode('샘플 데이터 로드 완료', sampleData.length);
-        
-        return sampleData;
+                            await this.updateChart(sampleData);
+                    await developerMode.logIfDeveloperMode('샘플 데이터 로드 완료', sampleData.length);
+                    
+                    return sampleData;
     }
 }

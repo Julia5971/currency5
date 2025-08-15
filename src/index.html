@@ -352,35 +352,35 @@
 
 
         // 인쇄 기능
-        function handlePrint() {
-            developerMode.logIfDeveloperMode('인쇄 기능 실행');
+        async function handlePrint() {
+            await developerMode.logIfDeveloperMode('인쇄 기능 실행');
             window.print();
         }
 
         // 차트 초기화
-        function initializeChart() {
+        async function initializeChart() {
             try {
-                developerMode.logIfDeveloperMode('차트 초기화 시작');
+                await developerMode.logIfDeveloperMode('차트 초기화 시작');
                 chartService = new ChartService();
-                chartService.initializeChart(rateChart);
+                await chartService.initializeChart(rateChart);
                 
                 // 샘플 데이터로 차트 테스트
-                const sampleData = chartService.loadSampleData();
+                const sampleData = await chartService.loadSampleData();
                 
                 // 테이블도 업데이트
                 updateRateTable(sampleData);
                 
-                developerMode.logIfDeveloperMode('차트 초기화 완료');
+                await developerMode.logIfDeveloperMode('차트 초기화 완료');
             } catch (error) {
-                developerMode.logIfDeveloperMode('차트 초기화 실패:', error);
+                await developerMode.logIfDeveloperMode('차트 초기화 실패:', error);
                 console.error('차트 초기화 실패:', error);
             }
         }
 
         // 환율 테이블 업데이트
-        function updateRateTable(historicalData) {
+        async function updateRateTable(historicalData) {
             try {
-                developerMode.logIfDeveloperMode('환율 테이블 업데이트 시작');
+                await developerMode.logIfDeveloperMode('환율 테이블 업데이트 시작');
                 
                 const tbody = rateTable.querySelector('tbody');
                 tbody.innerHTML = '';
@@ -406,9 +406,9 @@
                     tbody.appendChild(row);
                 });
                 
-                developerMode.logIfDeveloperMode('환율 테이블 업데이트 완료', recentData.length);
+                await developerMode.logIfDeveloperMode('환율 테이블 업데이트 완료', recentData.length);
             } catch (error) {
-                developerMode.logIfDeveloperMode('환율 테이블 업데이트 실패:', error);
+                await developerMode.logIfDeveloperMode('환율 테이블 업데이트 실패:', error);
                 console.error('환율 테이블 업데이트 실패:', error);
             }
         }
@@ -418,18 +418,18 @@
         printButton.addEventListener('click', handlePrint);
 
         // 페이지 로드 시 환율 데이터 로드
-        document.addEventListener('DOMContentLoaded', () => {
-            developerMode.logIfDeveloperMode('페이지 로드 완료');
+        document.addEventListener('DOMContentLoaded', async () => {
+            await developerMode.logIfDeveloperMode('페이지 로드 완료');
             loadExchangeRates();
             
             // Chart.js 로딩 확인 후 차트 초기화
             if (typeof Chart !== 'undefined') {
-                initializeChart();
+                await initializeChart();
             } else {
-                developerMode.logIfDeveloperMode('Chart.js 로딩 대기 중...');
-                setTimeout(() => {
+                await developerMode.logIfDeveloperMode('Chart.js 로딩 대기 중...');
+                setTimeout(async () => {
                     if (typeof Chart !== 'undefined') {
-                        initializeChart();
+                        await initializeChart();
                     } else {
                         console.error('Chart.js 로딩 실패');
                     }

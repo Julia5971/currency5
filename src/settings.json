@@ -1,7 +1,6 @@
 {
     "developerMode": {
-        "enabled": true,
-        "autoDetect": true
+        "enabled": true
     },
     "defaultValues": {
         "purchasePrice": 1300.50,

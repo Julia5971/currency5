@@ -1,39 +1,59 @@
 export class DeveloperModeService {
   constructor() {
-    // 간단한 개발자 모드 서비스
+    this.settings = null;
+    this.isInitialized = false;
+    this.init();
+  }
+
+  /**
+   * 초기화 함수
+   */
+  async init() {
+    await this.loadSettings();
+    
+    // 개발자 모드 상태 즉시 출력
+    if (this.isDeveloperModeEnabled()) {
+      console.log('🔧 개발자 모드 ON');
+    } else {
+      console.log('🔧 개발자 모드 OFF');
+    }
+    
+    this.isInitialized = true;
+  }
+
+  /**
+   * settings.json 파일을 로드합니다.
+   */
+  async loadSettings() {
+    try {
+      const response = await fetch('./settings.json');
+      this.settings = await response.json();
+      console.log('설정 파일 로드 완료:', this.settings);
+    } catch (error) {
+      console.log('설정 파일 로드 실패, 기본값 사용:', error);
+      this.settings = {
+        developerMode: {
+          enabled: false
+        }
+      };
+    }
   }
 
   /**
    * 개발자 모드가 켜져있는지 확인합니다.
-   * 브라우저 개발자 도구가 열려있는지 감지합니다.
+   * settings.json 설정만 확인합니다.
    * @returns {boolean} 개발자 모드 활성화 여부
    */
   isDeveloperModeEnabled() {
-    // Chrome DevTools 감지
-    const heightDifference = window.outerHeight - window.innerHeight;
-    const widthDifference = window.outerWidth - window.innerWidth;
+    // 초기화가 완료되지 않았으면 기본값 반환
+    if (!this.isInitialized) {
+      return false;
+    }
     
-    // DevTools가 열려있으면 창 크기 차이가 발생함
-    if (heightDifference > 100 || widthDifference > 100) {
+    // settings.json에서 개발자 모드 활성화 확인
+    if (this.settings && this.settings.developerMode && this.settings.developerMode.enabled) {
       return true;
     }
-
-    // 추가적인 DevTools 감지 방법들
-    try {
-      // DevTools 감지를 위한 트릭
-      const threshold = 160;
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      
-      if (widthThreshold || heightThreshold) {
-        return true;
-      }
-      
-    } catch (e) {
-      // 에러가 발생하면 DevTools가 열려있을 가능성이 높음
-      return true;
-    }
-
     return false;
   }
 
@@ -41,7 +61,12 @@ export class DeveloperModeService {
    * 개발자 모드가 켜져있을 때만 console.log를 출력합니다.
    * @param {...any} args - 출력할 인자들
    */
-  logIfDeveloperMode(...args) {
+  async logIfDeveloperMode(...args) {
+    // 초기화가 완료될 때까지 기다림
+    if (!this.isInitialized) {
+      await this.init();
+    }
+    
     if (this.isDeveloperModeEnabled()) {
       console.log(...args);
     }
