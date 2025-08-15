@@ -127,12 +127,6 @@ npm test
 #### 방법 2: 로컬 서버로 실행 (권장)
 더 안전하고 안정적인 실행을 위해 로컬 서버를 사용하는 것을 권장합니다.
 
-**Python을 사용하는 경우:**
-```bash
-cd src
-python -m http.server 8000
-```
-
 **Node.js를 사용하는 경우:**
 ```bash
 npx http-server src -p 8000
