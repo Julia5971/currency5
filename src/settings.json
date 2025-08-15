@@ -1,6 +1,6 @@
 {
     "developerMode": {
-        "enabled": false,
+        "enabled": true,
         "autoDetect": true
     },
     "defaultValues": {
