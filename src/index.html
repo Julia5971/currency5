@@ -211,9 +211,8 @@
                     <label for="amount">환전 금액 (USD):</label>
                     <input type="number" id="amount" placeholder="예: 100">
                 </div>
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <div style="margin-top: 1rem;">
                     <button type="submit">계산하기</button>
-                    <button type="button" id="default-calc-btn">기본값으로 계산</button>
                 </div>
             </form>
             <p id="calculation-result">결과: -</p>
@@ -257,7 +256,6 @@
         const calculatorForm = document.getElementById('calculator-form');
         const calculationResult = document.getElementById('calculation-result');
         const printButton = document.getElementById('print-button');
-        const defaultCalcBtn = document.getElementById('default-calc-btn');
 
         // 전역 변수로 현재 환율 데이터 저장
         let currentExchangeRates = null;
@@ -346,49 +344,7 @@
             }
         }
 
-        // 기본값으로 계산
-        function handleDefaultCalculation() {
-            const defaultPurchasePrice = 1300.50;
-            const defaultAmount = 100;
-            
-            developerMode.logIfDeveloperMode('기본값 계산 버튼 클릭됨');
-            
-            // 기본값을 입력 필드에 설정
-            document.getElementById('purchase-price').value = defaultPurchasePrice;
-            document.getElementById('amount').value = defaultAmount;
-            
-            developerMode.logIfDeveloperMode('입력 필드에 기본값 설정 완료:', {
-                purchasePrice: defaultPurchasePrice,
-                amount: defaultAmount
-            });
-            
-            // 현재 환율 (실제 API 데이터 사용)
-            const currentPrice = currentExchangeRates?.rates?.KRW || 1350;
-            
-            developerMode.logIfDeveloperMode('현재 환율 확인:', currentPrice);
-            
-            const profit = calculateProfitLoss(defaultPurchasePrice, currentPrice, defaultAmount);
-            
-            developerMode.logIfDeveloperMode('기본값으로 계산 실행:', { 
-                purchasePrice: defaultPurchasePrice, 
-                currentPrice, 
-                amount: defaultAmount, 
-                profit 
-            });
-            
-            if (profit > 0) {
-                calculationResult.textContent = `환차익: +${profit.toLocaleString()}원 (기본값 사용)`;
-                calculationResult.style.color = 'green';
-            } else if (profit < 0) {
-                calculationResult.textContent = `환차손: ${profit.toLocaleString()}원 (기본값 사용)`;
-                calculationResult.style.color = 'red';
-            } else {
-                calculationResult.textContent = '환차익/손: 0원 (기본값 사용)';
-                calculationResult.style.color = 'black';
-            }
-            
-            developerMode.logIfDeveloperMode('기본값 계산 완료, 결과 표시됨');
-        }
+
 
         // 인쇄 기능
         function handlePrint() {
@@ -398,7 +354,6 @@
 
         // 이벤트 리스너 등록
         calculatorForm.addEventListener('submit', handleCalculation);
-        defaultCalcBtn.addEventListener('click', handleDefaultCalculation);
         printButton.addEventListener('click', handlePrint);
 
         // 페이지 로드 시 환율 데이터 로드
