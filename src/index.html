@@ -4,6 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>실시간 환율 정보 서비스</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        #rate-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        #rate-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #rate-list li:last-child {
+            border-bottom: none;
+        }
+
+        #rate-list span {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        #last-updated {
+            color: #666;
+            font-style: italic;
+        }
+
+        form {
+            display: grid;
+            gap: 1rem;
+            max-width: 400px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        #calculation-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #rate-chart {
+            width: 100%;
+            height: 300px;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #rate-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        #rate-table th,
+        #rate-table td {
+            padding: 0.8rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        #rate-table th {
+            background: #667eea;
+            color: white;
+        }
+
+        #rate-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            margin-top: 2rem;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 0 1rem;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -63,5 +240,104 @@
         <p>데이터 출처: ExchangeRate-API</p>
         <button id="print-button">정보 인쇄하기</button>
     </footer>
+
+    <script type="module">
+        import { fetchExchangeRates } from './services/ExchangeRateService.js';
+        import { calculateProfitLoss } from './calculators/ProfitCalculator.js';
+        import { DeveloperModeService } from './services/DeveloperModeService.js';
+
+        const developerMode = new DeveloperModeService();
+
+        // DOM 요소들
+        const rateList = document.getElementById('rate-list');
+        const lastUpdated = document.getElementById('last-updated');
+        const calculatorForm = document.getElementById('calculator-form');
+        const calculationResult = document.getElementById('calculation-result');
+        const printButton = document.getElementById('print-button');
+
+        // 실시간 환율 데이터 로드
+        async function loadExchangeRates() {
+            try {
+                developerMode.logIfDeveloperMode('환율 데이터 로딩 시작');
+                
+                const data = await fetchExchangeRates();
+                
+                // 환율 정보 업데이트
+                const currencies = ['KRW', 'EUR', 'JPY', 'CNY'];
+                currencies.forEach(currency => {
+                    const rate = data.rates[currency];
+                    if (rate) {
+                        // li 요소에서 해당 통화를 찾기
+                        const listItems = rateList.querySelectorAll('li');
+                        listItems.forEach(item => {
+                            if (item.textContent.includes(currency)) {
+                                const span = item.querySelector('span');
+                                if (span) {
+                                    span.textContent = rate.toFixed(2);
+                                }
+                            }
+                        });
+                    }
+                });
+
+                // 마지막 업데이트 시간
+                lastUpdated.textContent = `최종 업데이트: ${new Date().toLocaleString()} (${data.source})`;
+                
+                developerMode.logIfDeveloperMode('환율 데이터 로딩 완료:', data);
+                
+            } catch (error) {
+                developerMode.logIfDeveloperMode('환율 데이터 로딩 실패:', error);
+                console.error('환율 데이터 로딩 실패:', error);
+            }
+        }
+
+        // 환차손 계산
+        function handleCalculation(event) {
+            event.preventDefault();
+            
+            const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            if (isNaN(purchasePrice) || isNaN(amount)) {
+                calculationResult.textContent = '올바른 숫자를 입력해주세요.';
+                return;
+            }
+
+            // 현재 환율 (실제로는 API에서 가져온 값 사용)
+            const currentPrice = 1350; // 임시 값
+            
+            const profit = calculateProfitLoss(purchasePrice, currentPrice, amount);
+            
+            if (profit > 0) {
+                calculationResult.textContent = `환차익: +${profit.toLocaleString()}원`;
+                calculationResult.style.color = 'green';
+            } else if (profit < 0) {
+                calculationResult.textContent = `환차손: ${profit.toLocaleString()}원`;
+                calculationResult.style.color = 'red';
+            } else {
+                calculationResult.textContent = '환차익/손: 0원';
+                calculationResult.style.color = 'black';
+            }
+        }
+
+        // 인쇄 기능
+        function handlePrint() {
+            developerMode.logIfDeveloperMode('인쇄 기능 실행');
+            window.print();
+        }
+
+        // 이벤트 리스너 등록
+        calculatorForm.addEventListener('submit', handleCalculation);
+        printButton.addEventListener('click', handlePrint);
+
+        // 페이지 로드 시 환율 데이터 로드
+        document.addEventListener('DOMContentLoaded', () => {
+            developerMode.logIfDeveloperMode('페이지 로드 완료');
+            loadExchangeRates();
+        });
+
+        // 5분마다 환율 데이터 새로고침
+        setInterval(loadExchangeRates, 5 * 60 * 1000);
+    </script>
 </body>
 </html>
