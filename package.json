@@ -26,5 +26,8 @@
       "jest-localstorage-mock"
     ],
     "testEnvironment": "jsdom"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.0"
   }
 }

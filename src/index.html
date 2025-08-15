@@ -243,10 +243,12 @@
         <button id="print-button">정보 인쇄하기</button>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module">
         import { fetchExchangeRates } from './services/ExchangeRateService.js';
         import { calculateProfitLoss } from './calculators/ProfitCalculator.js';
         import { DeveloperModeService } from './services/DeveloperModeService.js';
+        import { ChartService } from './services/ChartService.js';
 
         const developerMode = new DeveloperModeService();
 
@@ -256,9 +258,12 @@
         const calculatorForm = document.getElementById('calculator-form');
         const calculationResult = document.getElementById('calculation-result');
         const printButton = document.getElementById('print-button');
+        const rateChart = document.getElementById('rate-chart');
+        const rateTable = document.getElementById('rate-table');
 
         // 전역 변수로 현재 환율 데이터 저장
         let currentExchangeRates = null;
+        let chartService = null;
 
         // 실시간 환율 데이터 로드
         async function loadExchangeRates() {
@@ -352,6 +357,62 @@
             window.print();
         }
 
+        // 차트 초기화
+        function initializeChart() {
+            try {
+                developerMode.logIfDeveloperMode('차트 초기화 시작');
+                chartService = new ChartService();
+                chartService.initializeChart(rateChart);
+                
+                // 샘플 데이터로 차트 테스트
+                const sampleData = chartService.loadSampleData();
+                
+                // 테이블도 업데이트
+                updateRateTable(sampleData);
+                
+                developerMode.logIfDeveloperMode('차트 초기화 완료');
+            } catch (error) {
+                developerMode.logIfDeveloperMode('차트 초기화 실패:', error);
+                console.error('차트 초기화 실패:', error);
+            }
+        }
+
+        // 환율 테이블 업데이트
+        function updateRateTable(historicalData) {
+            try {
+                developerMode.logIfDeveloperMode('환율 테이블 업데이트 시작');
+                
+                const tbody = rateTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                // 최근 10일 데이터만 표시
+                const recentData = historicalData.slice(-10);
+                
+                recentData.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    const dateCell = document.createElement('td');
+                    const date = new Date(item.date);
+                    dateCell.textContent = date.toLocaleDateString('ko-KR');
+                    row.appendChild(dateCell);
+                    
+                    ['KRW', 'EUR', 'JPY', 'CNY'].forEach(currency => {
+                        const cell = document.createElement('td');
+                        const rate = item.rates[currency];
+                        cell.textContent = rate ? rate.toFixed(2) : '-';
+                        row.appendChild(cell);
+                    });
+                    
+                    tbody.appendChild(row);
+                });
+                
+                developerMode.logIfDeveloperMode('환율 테이블 업데이트 완료', recentData.length);
+            } catch (error) {
+                developerMode.logIfDeveloperMode('환율 테이블 업데이트 실패:', error);
+                console.error('환율 테이블 업데이트 실패:', error);
+            }
+        }
+
         // 이벤트 리스너 등록
         calculatorForm.addEventListener('submit', handleCalculation);
         printButton.addEventListener('click', handlePrint);
@@ -360,6 +421,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             developerMode.logIfDeveloperMode('페이지 로드 완료');
             loadExchangeRates();
+            initializeChart();
         });
 
         // 5분마다 환율 데이터 새로고침
