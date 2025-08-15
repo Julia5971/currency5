@@ -98,6 +98,27 @@
 
         input:focus {
             outline: none;
+        }
+        
+        #charts-container {
+            display: grid;
+            grid-template-columns: 1fr;  /* 한 줄에 하나씩만 */
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chart-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            text-align: center;
+        }
             border-color: #667eea;
         }
 
@@ -382,10 +403,25 @@
             try {
                 developerMode.logIfDeveloperMode('차트 초기화 시작');
                 chartService = new ChartService();
-                chartService.initializeChart(rateChart);
+                
+                // 모든 캔버스 요소 수집
+                const canvasElements = {
+                    'usd-chart': document.getElementById('usd-chart'),
+                    'eur-chart': document.getElementById('eur-chart'),
+                    'chf-chart': document.getElementById('chf-chart'),
+                    'cny-chart': document.getElementById('cny-chart'),
+                    'jpy-chart': document.getElementById('jpy-chart')
+                };
+                
+                developerMode.logIfDeveloperMode('캔버스 요소 수집 완료:', Object.keys(canvasElements));
+                
+                // 모든 차트 초기화
+                const initResult = chartService.initializeAllCharts(canvasElements);
+                developerMode.logIfDeveloperMode('차트 초기화 결과:', initResult);
                 
                 // 샘플 데이터로 차트 테스트
                 const sampleData = chartService.loadSampleData();
+                developerMode.logIfDeveloperMode('샘플 데이터 로드 완료:', sampleData.length);
                 
                 // 테이블도 업데이트
                 updateRateTable(sampleData);
@@ -455,11 +491,13 @@
             
             // Chart.js 로딩 확인 후 차트 초기화
             if (typeof Chart !== 'undefined') {
+                developerMode.logIfDeveloperMode('Chart.js 로드됨, 차트 초기화 시작');
                 initializeChart();
             } else {
                 developerMode.logIfDeveloperMode('Chart.js 로딩 대기 중...');
                 setTimeout(() => {
                     if (typeof Chart !== 'undefined') {
+                        developerMode.logIfDeveloperMode('Chart.js 로드됨, 차트 초기화 시작');
                         initializeChart();
                     } else {
                         console.error('Chart.js 로딩 실패');

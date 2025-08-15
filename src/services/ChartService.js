@@ -2,63 +2,91 @@ import developerMode from './DeveloperModeService.js';
 
 export class ChartService {
     constructor() {
-        this.chart = null;
-        this.chartData = {
-            labels: [],
-            datasets: []
-        };
+        this.charts = {};  // 여러 차트를 관리하는 객체
+        this.chartData = null;
     }
 
     /**
-     * 차트 초기화
-     * @param {HTMLCanvasElement} canvas - 차트를 그릴 캔버스 요소
+     * 모든 차트 초기화
+     * @param {Object} canvasElements - 캔버스 요소들의 객체
+     * @returns {boolean} 초기화 성공 여부
      */
-                    initializeChart(canvas) {
-                    if (!canvas) {
-                        developerMode.logIfDeveloperMode('캔버스 요소가 없습니다');
-                        return false;
-                    }
-                    
-                    if (typeof Chart === 'undefined') {
-                        developerMode.logIfDeveloperMode('Chart.js가 로딩되지 않았습니다');
-                        return false;
-                    }
-                    
-                    developerMode.logIfDeveloperMode('차트 초기화 시작');
-        
-        // 캔버스 크기 정보 출력
-        const canvasSize = {
-            width: canvas.width,
-            height: canvas.height,
-            offsetWidth: canvas.offsetWidth,
-            offsetHeight: canvas.offsetHeight,
-            clientWidth: canvas.clientWidth,
-            clientHeight: canvas.clientHeight,
-            scrollWidth: canvas.scrollWidth,
-            scrollHeight: canvas.scrollHeight,
-            style: {
-                width: canvas.style.width,
-                height: canvas.style.height
+    initializeAllCharts(canvasElements) {
+        if (typeof Chart === 'undefined') {
+            developerMode.logIfDeveloperMode('Chart.js가 로드되지 않았습니다');
+            return false;
+        }
+
+        developerMode.logIfDeveloperMode('캔버스 요소들:', canvasElements);
+
+        const currencies = ['USD', 'EUR', 'CHF', 'CNY', 'JPY'];
+        let successCount = 0;
+
+        currencies.forEach(currency => {
+            const canvasId = `${currency.toLowerCase()}-chart`;
+            const canvas = canvasElements[canvasId];
+            
+            developerMode.logIfDeveloperMode(`${currency} 차트 초기화 시도:`, {
+                canvasId,
+                canvas: canvas ? '존재' : '없음',
+                canvasWidth: canvas?.width,
+                canvasHeight: canvas?.height
+            });
+            
+            if (canvas && this.initializeChart(canvas, currency)) {
+                successCount++;
             }
+        });
+
+        developerMode.logIfDeveloperMode(`총 ${successCount}개의 차트 초기화 완료`);
+        return successCount > 0;
+    }
+
+    /**
+     * 단일 차트 초기화
+     * @param {HTMLCanvasElement} canvas - 차트를 그릴 캔버스 요소
+     * @param {string} currency - 통화 코드
+     * @returns {boolean} 초기화 성공 여부
+     */
+    initializeChart(canvas, currency) {
+        if (!canvas) {
+            developerMode.logIfDeveloperMode(`${currency} 캔버스 요소가 없습니다`);
+            return false;
+        }
+
+        // 캔버스 크기 설정
+        canvas.width = 400;
+        canvas.height = 200;
+        
+        developerMode.logIfDeveloperMode(`${currency} 캔버스 크기 설정:`, {
+            width: canvas.width,
+            height: canvas.height
+        });
+
+        // 기존 차트가 있으면 파괴
+        if (this.charts[currency]) {
+            this.charts[currency].destroy();
+        }
+
+        // 통화별 색상 정의 (개발계획서 요구사항 반영)
+        const currencyColors = {
+            USD: '#9966FF', // 보라색
+            EUR: '#36A2EB', // 파란색
+            CHF: '#FF9F40', // 주황색
+            CNY: '#dc3545', // 빨간색 (개발계획서 요구사항)
+            JPY: '#FFCE56'  // 노란색
         };
-        
-                            developerMode.logIfDeveloperMode('캔버스 크기 정보:', canvasSize);
-                    console.log('캔버스 크기 정보:', canvasSize);
-                    
-                    const ctx = canvas.getContext('2d');
-                    if (!ctx) {
-                        developerMode.logIfDeveloperMode('캔버스 컨텍스트를 가져올 수 없습니다');
-                        return false;
-                    }
-        
-        this.chart = new Chart(ctx, {
+
+        this.charts[currency] = new Chart(canvas, {
             type: 'line',
-            data: this.chartData,
+            data: {
+                labels: [],
+                datasets: []
+            },
             options: {
-                responsive: false,  // 반응형 비활성화
-                maintainAspectRatio: true,  // 비율 유지
-                aspectRatio: 3,  // 가로:세로 비율을 더 넓게 설정 (높이 줄임)
-                animation: false,  // 애니메이션 비활성화로 성능 향상
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
                 transitions: {
                     active: {
                         animation: {
@@ -67,16 +95,11 @@ export class ChartService {
                     }
                 },
                 plugins: {
-                                                    title: {
-                                    display: true,
-                                    text: 'KRW 기준 환율 변동 추이 (최근 30일)',
-                                    font: {
-                                        size: 16
-                                    }
-                                },
+                    title: {
+                        display: false
+                    },
                     legend: {
-                        display: true,
-                        position: 'top'
+                        display: false
                     }
                 },
                 scales: {
@@ -86,28 +109,25 @@ export class ChartService {
                             text: '날짜'
                         },
                         ticks: {
-                            maxTicksLimit: 10
+                            maxTicksLimit: 6
                         }
                     },
                     y: {
                         type: 'linear',
                         title: {
                             display: true,
-                            text: 'KRW 기준 환율'
+                            text: `${currency}/KRW`
                         },
                         beginAtZero: false,
-                        min: 0,
-                        max: 2000,
                         ticks: {
                             callback: function(value, index, values) {
                                 return value.toLocaleString();
                             },
-                            maxTicksLimit: 4,  // 축 눈금 개수 줄임
-                            stepSize: 500  // 눈금 간격을 500으로 고정
+                            maxTicksLimit: 4
                         },
                         grid: {
-                            color: 'rgba(0,0,0,0.1)',  // 그리드 색상 연하게
-                            drawBorder: false  // 테두리 제거
+                            color: 'rgba(0,0,0,0.1)',
+                            drawBorder: false
                         }
                     }
                 },
@@ -118,38 +138,21 @@ export class ChartService {
             }
         });
         
-                            developerMode.logIfDeveloperMode('차트 초기화 완료');
-                    return true;
+        developerMode.logIfDeveloperMode(`${currency} 차트 초기화 완료`);
+        return true;
     }
 
     /**
-     * 환율 데이터로 차트 업데이트
+     * 모든 차트에 데이터 업데이트
      * @param {Array} historicalData - 과거 환율 데이터 배열
      */
-                    updateChart(historicalData) {
-                    if (!this.chart) {
-                        developerMode.logIfDeveloperMode('차트가 초기화되지 않았습니다');
-                        return;
-                    }
+    updateAllCharts(historicalData) {
+        if (!historicalData || historicalData.length === 0) {
+            developerMode.logIfDeveloperMode('업데이트할 데이터가 없습니다');
+            return;
+        }
 
-                    developerMode.logIfDeveloperMode('차트 데이터 업데이트 시작:', historicalData);
-        
-        // 차트 크기 정보 출력
-        const chartSize = {
-            canvas: {
-                width: this.chart.canvas.width,
-                height: this.chart.canvas.height,
-                offsetWidth: this.chart.canvas.offsetWidth,
-                offsetHeight: this.chart.canvas.offsetHeight
-            },
-            chart: {
-                width: this.chart.width,
-                height: this.chart.height
-            }
-        };
-        
-                            developerMode.logIfDeveloperMode('차트 크기 정보:', chartSize);
-                    console.log('차트 크기 정보:', chartSize);
+        developerMode.logIfDeveloperMode('모든 차트 데이터 업데이트 시작:', historicalData.length);
 
         // 데이터 정렬 (날짜순)
         const sortedData = historicalData.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -163,77 +166,68 @@ export class ChartService {
             });
         });
 
-        // 통화별 색상 정의
+        const currencies = ['USD', 'EUR', 'CHF', 'CNY', 'JPY'];
         const currencyColors = {
-            KRW: '#FF6384', // 빨간색
-            EUR: '#36A2EB', // 파란색
-            JPY: '#FFCE56', // 노란색
-            CNY: '#4BC0C0', // 청록색
-            USD: '#9966FF', // 보라색
-            CHF: '#FF9F40'  // 주황색
+            USD: '#9966FF',
+            EUR: '#36A2EB',
+            CHF: '#FF9F40',
+            CNY: '#dc3545', // 빨간색 (개발계획서 요구사항)
+            JPY: '#FFCE56'
         };
 
-        // 데이터셋 생성 - KRW 기준 환율로 변환
-        const datasets = [];
-        // settings.json에서 활성화된 통화 목록 가져오기
-        const currencies = ['USD', 'EUR', 'CHF', 'CNY', 'JPY']; // 기본값, 나중에 settings.json에서 읽어올 예정
-
         currencies.forEach(currency => {
-            const data = sortedData.map(item => {
-                // USD 기준 환율을 KRW 기준으로 변환
-                const usdRate = item.rates[currency]; // USD/currency
-                const krwRate = item.rates.KRW; // USD/KRW
-                
-                if (currency === 'USD') {
-                    // USD/KRW는 그대로
-                    return krwRate ? parseFloat(krwRate.toFixed(2)) : null;
-                } else {
-                    // 다른 통화는 USD/KRW ÷ USD/currency = KRW/currency
-                    return (usdRate && krwRate) ? parseFloat((krwRate / usdRate).toFixed(2)) : null;
-                }
-            });
+            if (this.charts[currency]) {
+                // 각 통화별 데이터 생성
+                const data = sortedData.map(item => {
+                    const usdRate = item.rates[currency]; // USD/currency
+                    const krwRate = item.rates.KRW; // USD/KRW
+                    
+                    if (currency === 'USD') {
+                        return krwRate ? parseFloat(krwRate.toFixed(2)) : null;
+                    } else {
+                        return (usdRate && krwRate) ? parseFloat((krwRate / usdRate).toFixed(2)) : null;
+                    }
+                });
 
-            datasets.push({
-                label: `${currency}/KRW`,
-                data: data,
-                borderColor: currencyColors[currency],
-                backgroundColor: currencyColors[currency] + '20',
-                borderWidth: 2,
-                fill: false,
-                tension: 0,  // 곡선 부드러움 제거로 성능 향상
-                pointRadius: 2,  // 포인트 크기 축소
-                pointHoverRadius: 4
-            });
+                // 차트 데이터 업데이트
+                this.charts[currency].data.labels = labels;
+                this.charts[currency].data.datasets = [{
+                    label: `${currency}/KRW`,
+                    data: data,
+                    borderColor: currencyColors[currency],
+                    backgroundColor: currencyColors[currency] + '20',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0,
+                    pointRadius: 2,
+                    pointHoverRadius: 4
+                }];
+                
+                this.charts[currency].update('none');
+            }
         });
 
-        // 차트 데이터 업데이트 (성능 최적화)
-        this.chart.data.labels = labels;
-        this.chart.data.datasets = datasets;
-        this.chart.update('none'); // 애니메이션 비활성화로 성능 향상
-
-                            developerMode.logIfDeveloperMode('차트 업데이트 완료', {
-                        labelsCount: labels.length,
-                        datasetsCount: datasets.length,
-                        currencies: currencies
-                    });
+        developerMode.logIfDeveloperMode('모든 차트 업데이트 완료');
     }
 
     /**
-     * 차트 파괴
+     * 모든 차트 파괴
      */
-                    destroyChart() {
-                    if (this.chart) {
-                        this.chart.destroy();
-                        this.chart = null;
-                        developerMode.logIfDeveloperMode('차트 파괴 완료');
-                    }
-                }
+    destroyAllCharts() {
+        Object.keys(this.charts).forEach(currency => {
+            if (this.charts[currency]) {
+                this.charts[currency].destroy();
+            }
+        });
+        this.charts = {};
+        developerMode.logIfDeveloperMode('모든 차트 파괴 완료');
+    }
 
     /**
      * 샘플 데이터로 차트 테스트
      */
-                    loadSampleData() {
-                    developerMode.logIfDeveloperMode('샘플 데이터 로드 시작');
+    loadSampleData() {
+        developerMode.logIfDeveloperMode('샘플 데이터 로드 시작');
         
         const sampleData = [];
         const today = new Date();
@@ -262,9 +256,9 @@ export class ChartService {
             });
         }
         
-                            this.updateChart(sampleData);
-                    developerMode.logIfDeveloperMode('샘플 데이터 로드 완료', sampleData.length);
-                    
-                    return sampleData;
+        this.updateAllCharts(sampleData);
+        developerMode.logIfDeveloperMode('샘플 데이터 로드 완료', sampleData.length);
+        
+        return sampleData;
     }
 }
