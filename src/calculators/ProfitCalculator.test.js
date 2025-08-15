@@ -1,4 +1,4 @@
-import { calculateProfitLoss } from './ProfitCalculator';
+import { calculateProfitLoss } from './ProfitCalculator.js';
 
 describe('ProfitCalculator', () => {
   // 테스트 ID 2.1.1: 환차익 계산

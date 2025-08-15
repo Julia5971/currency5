@@ -1,4 +1,4 @@
-import { fetchExchangeRates } from './ExchangeRateService';
+import { fetchExchangeRates } from './ExchangeRateService.js';
 
 describe('ExchangeRateService', () => {
 

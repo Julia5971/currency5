@@ -1,4 +1,4 @@
-import { normalizeData } from './DataNormalizer';
+import { normalizeData } from './DataNormalizer.js';
 
 describe('DataNormalizer', () => {
   // 테스트 ID 1.3.1: EUR 기반 데이터 변환

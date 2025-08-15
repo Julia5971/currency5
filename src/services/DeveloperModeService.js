@@ -38,8 +38,17 @@ export class DeveloperModeService {
       this.settings = await response.json();
       console.log('설정 파일 로드 완료:', this.settings);
       
+      // 디버깅을 위한 상세 로그
+      console.log('디버깅 - this.isInitialized:', this.isInitialized);
+      console.log('디버깅 - this.settings:', this.settings);
+      console.log('디버깅 - this.settings.developerMode:', this.settings?.developerMode);
+      console.log('디버깅 - this.settings.developerMode.enabled:', this.settings?.developerMode?.enabled);
+      
       // 설정 로드 후 개발자 모드 상태 다시 출력
-      if (this.isDeveloperModeEnabled()) {
+      const isEnabled = this.isDeveloperModeEnabled();
+      console.log('디버깅 - isDeveloperModeEnabled() 결과:', isEnabled);
+      
+      if (isEnabled) {
         console.log('🔧 개발자 모드 ON (설정 파일에서)');
       } else {
         console.log('🔧 개발자 모드 OFF (설정 파일에서)');
