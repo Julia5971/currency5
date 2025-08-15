@@ -1,6 +1,4 @@
-import { DeveloperModeService } from '../services/DeveloperModeService.js';
-
-const developerMode = new DeveloperModeService();
+import developerMode from '../services/DeveloperModeService.js';
 
 export const calculateProfitLoss = (purchasePrice, currentPrice, amount) => {
   developerMode.logIfDeveloperMode('환차손익 계산 시작:', { purchasePrice, currentPrice, amount });

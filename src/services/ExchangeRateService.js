@@ -1,12 +1,10 @@
 // src/services/ExchangeRateService.js
-import { DeveloperModeService } from './DeveloperModeService.js';
+import developerMode from './DeveloperModeService.js';
 
 const API_ENDPOINTS = [
   { name: 'ExchangeRate-API', url: 'https://open.er-api.com/v6/latest/USD' },
   { name: 'CurrencyAPI', url: 'https://api.currencyapi.com/v3/latest?apikey=YOUR_API_KEY&base_currency=USD' },
 ];
-
-const developerMode = new DeveloperModeService();
 
 const getDefaultRates = () => {
   developerMode.logIfDeveloperMode('모든 API 호출에 실패하여 기본 환율 정보를 반환합니다.');

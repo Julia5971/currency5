@@ -1,6 +1,4 @@
-import { DeveloperModeService } from './DeveloperModeService.js';
-
-const developerMode = new DeveloperModeService();
+import developerMode from './DeveloperModeService.js';
 
 export class ChartService {
     constructor() {
@@ -60,13 +58,13 @@ export class ChartService {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: '환율 변동 추이 (최근 30일)',
-                        font: {
-                            size: 16
-                        }
-                    },
+                                                    title: {
+                                    display: true,
+                                    text: '환율 변동 추이 (최근 30일) - 로그 스케일',
+                                    font: {
+                                        size: 16
+                                    }
+                                },
                     legend: {
                         display: true,
                         position: 'top'
@@ -83,11 +81,17 @@ export class ChartService {
                         }
                     },
                     y: {
+                        type: 'logarithmic',
                         title: {
                             display: true,
-                            text: '환율 (KRW)'
+                            text: '환율 (로그 스케일)'
                         },
-                        beginAtZero: false
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return value.toLocaleString();
+                            }
+                        }
                     }
                 },
                 interaction: {

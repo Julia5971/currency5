@@ -247,10 +247,8 @@
     <script type="module">
         import { fetchExchangeRates } from './services/ExchangeRateService.js';
         import { calculateProfitLoss } from './calculators/ProfitCalculator.js';
-        import { DeveloperModeService } from './services/DeveloperModeService.js';
+        import developerMode from './services/DeveloperModeService.js';
         import { ChartService } from './services/ChartService.js';
-
-        const developerMode = new DeveloperModeService();
 
         // DOM 요소들
         const rateList = document.getElementById('rate-list');
@@ -418,7 +416,8 @@
         printButton.addEventListener('click', handlePrint);
 
         // 페이지 로드 시 환율 데이터 로드
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await developerMode.ready(); // 설정 파일 로드를 기다립니다.
             developerMode.logIfDeveloperMode('페이지 로드 완료');
             loadExchangeRates();
             

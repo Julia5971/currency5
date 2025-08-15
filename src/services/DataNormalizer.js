@@ -1,6 +1,4 @@
-import { DeveloperModeService } from './DeveloperModeService.js';
-
-const developerMode = new DeveloperModeService();
+import developerMode from './DeveloperModeService.js';
 
 export const normalizeData = (data) => {
   developerMode.logIfDeveloperMode('데이터 정규화 시작:', { base: data.base, ratesCount: Object.keys(data.rates).length });

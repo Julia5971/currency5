@@ -2,6 +2,7 @@ class DeveloperModeService {
   constructor() {
     this.settings = null;
     this.isInitialized = false;
+    this._readyPromise = null;
     
     console.log('🔧 새로운 DeveloperModeService 인스턴스 생성됨');
     
@@ -16,7 +17,15 @@ class DeveloperModeService {
     }
     
     // 비동기적으로 settings.json 로드
-    this.loadSettingsFromFile();
+    this._readyPromise = this.loadSettingsFromFile();
+  }
+
+  /**
+   * 서비스가 준비될 때까지 기다립니다.
+   * @returns {Promise<void>}
+   */
+  ready() {
+    return this._readyPromise;
   }
 
   /**
@@ -100,4 +109,4 @@ class DeveloperModeService {
 
 // 싱글톤 인스턴스를 생성하고 export
 const developerMode = new DeveloperModeService();
-export { developerMode };
+export default developerMode;
