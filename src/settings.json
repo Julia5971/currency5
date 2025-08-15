@@ -5,5 +5,9 @@
     "defaultValues": {
         "purchasePrice": 1300.50,
         "amount": 100
+    },
+    "currencies": {
+        "enabled": ["USD", "EUR", "CHF", "CNY", "JPY"],
+        "base": "KRW"
     }
 }

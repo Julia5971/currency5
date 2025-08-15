@@ -220,15 +220,37 @@
 
         <section id="historical-data">
             <h2>과거 환율 데이터 (최근 30일)</h2>
-            <canvas id="rate-chart"></canvas>
+            <div id="charts-container">
+                <div class="chart-item">
+                    <h3>USD/KRW</h3>
+                    <canvas id="usd-chart" style="max-height: 200px;"></canvas>
+                </div>
+                <div class="chart-item">
+                    <h3>EUR/KRW</h3>
+                    <canvas id="eur-chart" style="max-height: 200px;"></canvas>
+                </div>
+                <div class="chart-item">
+                    <h3>CHF/KRW</h3>
+                    <canvas id="chf-chart" style="max-height: 200px;"></canvas>
+                </div>
+                <div class="chart-item">
+                    <h3>CNY/KRW</h3>
+                    <canvas id="cny-chart" style="max-height: 200px;"></canvas>
+                </div>
+                <div class="chart-item">
+                    <h3>JPY/KRW</h3>
+                    <canvas id="jpy-chart" style="max-height: 200px;"></canvas>
+                </div>
+            </div>
             <table id="rate-table">
                 <thead>
                     <tr>
                         <th>날짜</th>
-                        <th>KRW</th>
-                        <th>EUR</th>
-                        <th>JPY</th>
-                        <th>CNY</th>
+                        <th>USD/KRW</th>
+                        <th>EUR/KRW</th>
+                        <th>CHF/KRW</th>
+                        <th>CNY/KRW</th>
+                        <th>JPY/KRW</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -394,10 +416,20 @@
                     dateCell.textContent = date.toLocaleDateString('ko-KR');
                     row.appendChild(dateCell);
                     
-                    ['KRW', 'EUR', 'JPY', 'CNY'].forEach(currency => {
+                    ['USD', 'EUR', 'CHF', 'CNY', 'JPY'].forEach(currency => {
                         const cell = document.createElement('td');
-                        const rate = item.rates[currency];
-                        cell.textContent = rate ? rate.toFixed(2) : '-';
+                        // KRW 기준 환율로 변환
+                        const usdRate = item.rates[currency]; // USD/currency
+                        const krwRate = item.rates.KRW; // USD/KRW
+                        
+                        let displayRate;
+                        if (currency === 'USD') {
+                            displayRate = krwRate; // USD/KRW는 그대로
+                        } else {
+                            displayRate = (usdRate && krwRate) ? (krwRate / usdRate) : null; // KRW/currency
+                        }
+                        
+                        cell.textContent = displayRate ? displayRate.toFixed(2) : '-';
                         row.appendChild(cell);
                     });
                     
@@ -436,8 +468,8 @@
             }
         });
 
-        // 5분마다 환율 데이터 새로고침
-        setInterval(loadExchangeRates, 5 * 60 * 1000);
+        // 10분마다 환율 데이터 새로고침 (성능 최적화)
+        setInterval(loadExchangeRates, 10 * 60 * 1000);
     </script>
 </body>
 </html>
