@@ -243,7 +243,7 @@
         <button id="print-button">정보 인쇄하기</button>
     </footer>
 
-    <script src="../node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module">
         import { fetchExchangeRates } from './services/ExchangeRateService.js';
         import { calculateProfitLoss } from './calculators/ProfitCalculator.js';
@@ -352,35 +352,35 @@
 
 
         // 인쇄 기능
-        async function handlePrint() {
-            await developerMode.logIfDeveloperMode('인쇄 기능 실행');
+        function handlePrint() {
+            developerMode.logIfDeveloperMode('인쇄 기능 실행');
             window.print();
         }
 
         // 차트 초기화
-        async function initializeChart() {
+        function initializeChart() {
             try {
-                await developerMode.logIfDeveloperMode('차트 초기화 시작');
+                developerMode.logIfDeveloperMode('차트 초기화 시작');
                 chartService = new ChartService();
-                await chartService.initializeChart(rateChart);
+                chartService.initializeChart(rateChart);
                 
                 // 샘플 데이터로 차트 테스트
-                const sampleData = await chartService.loadSampleData();
+                const sampleData = chartService.loadSampleData();
                 
                 // 테이블도 업데이트
                 updateRateTable(sampleData);
                 
-                await developerMode.logIfDeveloperMode('차트 초기화 완료');
+                developerMode.logIfDeveloperMode('차트 초기화 완료');
             } catch (error) {
-                await developerMode.logIfDeveloperMode('차트 초기화 실패:', error);
+                developerMode.logIfDeveloperMode('차트 초기화 실패:', error);
                 console.error('차트 초기화 실패:', error);
             }
         }
 
         // 환율 테이블 업데이트
-        async function updateRateTable(historicalData) {
+        function updateRateTable(historicalData) {
             try {
-                await developerMode.logIfDeveloperMode('환율 테이블 업데이트 시작');
+                developerMode.logIfDeveloperMode('환율 테이블 업데이트 시작');
                 
                 const tbody = rateTable.querySelector('tbody');
                 tbody.innerHTML = '';
@@ -406,9 +406,9 @@
                     tbody.appendChild(row);
                 });
                 
-                await developerMode.logIfDeveloperMode('환율 테이블 업데이트 완료', recentData.length);
+                developerMode.logIfDeveloperMode('환율 테이블 업데이트 완료', recentData.length);
             } catch (error) {
-                await developerMode.logIfDeveloperMode('환율 테이블 업데이트 실패:', error);
+                developerMode.logIfDeveloperMode('환율 테이블 업데이트 실패:', error);
                 console.error('환율 테이블 업데이트 실패:', error);
             }
         }
@@ -418,18 +418,18 @@
         printButton.addEventListener('click', handlePrint);
 
         // 페이지 로드 시 환율 데이터 로드
-        document.addEventListener('DOMContentLoaded', async () => {
-            await developerMode.logIfDeveloperMode('페이지 로드 완료');
+        document.addEventListener('DOMContentLoaded', () => {
+            developerMode.logIfDeveloperMode('페이지 로드 완료');
             loadExchangeRates();
             
             // Chart.js 로딩 확인 후 차트 초기화
             if (typeof Chart !== 'undefined') {
-                await initializeChart();
+                initializeChart();
             } else {
-                await developerMode.logIfDeveloperMode('Chart.js 로딩 대기 중...');
-                setTimeout(async () => {
+                developerMode.logIfDeveloperMode('Chart.js 로딩 대기 중...');
+                setTimeout(() => {
                     if (typeof Chart !== 'undefined') {
-                        await initializeChart();
+                        initializeChart();
                     } else {
                         console.error('Chart.js 로딩 실패');
                     }

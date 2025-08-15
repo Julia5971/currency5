@@ -2,14 +2,9 @@ export class DeveloperModeService {
   constructor() {
     this.settings = null;
     this.isInitialized = false;
-    this.init();
-  }
-
-  /**
-   * 초기화 함수
-   */
-  async init() {
-    await this.loadSettings();
+    
+    // 동기적으로 기본 설정 로드
+    this.loadDefaultSettings();
     
     // 개발자 모드 상태 즉시 출력
     if (this.isDeveloperModeEnabled()) {
@@ -18,26 +13,43 @@ export class DeveloperModeService {
       console.log('🔧 개발자 모드 OFF');
     }
     
+    // 비동기적으로 settings.json 로드
+    this.loadSettingsFromFile();
+  }
+
+  /**
+   * 기본 설정을 로드합니다.
+   */
+  loadDefaultSettings() {
+    this.settings = {
+      developerMode: {
+        enabled: false
+      }
+    };
     this.isInitialized = true;
   }
 
   /**
-   * settings.json 파일을 로드합니다.
+   * settings.json 파일에서 설정을 로드합니다.
    */
-  async loadSettings() {
+  async loadSettingsFromFile() {
     try {
       const response = await fetch('./settings.json');
       this.settings = await response.json();
       console.log('설정 파일 로드 완료:', this.settings);
+      
+      // 설정 로드 후 개발자 모드 상태 다시 출력
+      if (this.isDeveloperModeEnabled()) {
+        console.log('🔧 개발자 모드 ON (설정 파일에서)');
+      } else {
+        console.log('🔧 개발자 모드 OFF (설정 파일에서)');
+      }
     } catch (error) {
       console.log('설정 파일 로드 실패, 기본값 사용:', error);
-      this.settings = {
-        developerMode: {
-          enabled: false
-        }
-      };
     }
   }
+
+
 
   /**
    * 개발자 모드가 켜져있는지 확인합니다.
@@ -61,12 +73,7 @@ export class DeveloperModeService {
    * 개발자 모드가 켜져있을 때만 console.log를 출력합니다.
    * @param {...any} args - 출력할 인자들
    */
-  async logIfDeveloperMode(...args) {
-    // 초기화가 완료될 때까지 기다림
-    if (!this.isInitialized) {
-      await this.init();
-    }
-    
+  logIfDeveloperMode(...args) {
     if (this.isDeveloperModeEnabled()) {
       console.log(...args);
     }
